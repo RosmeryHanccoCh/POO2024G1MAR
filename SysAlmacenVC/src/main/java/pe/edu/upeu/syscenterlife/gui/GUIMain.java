@@ -23,11 +23,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
 import pe.edu.upeu.syscenterlife.modelo.MenuMenuItenTO;
 import pe.edu.upeu.syscenterlife.servicio.MenuMenuItemDao;
 import pe.edu.upeu.syscenterlife.servicio.MenuMenuItenDaoI;
 import pe.edu.upeu.syscenterlife.util.UtilsX;
 
+@Component
 public class GUIMain extends JFrame {
 
     Preferences userPrefs = Preferences.userRoot();

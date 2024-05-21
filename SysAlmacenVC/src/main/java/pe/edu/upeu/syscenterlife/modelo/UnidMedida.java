@@ -7,35 +7,33 @@ package pe.edu.upeu.syscenterlife.modelo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@ToString
 @Data
-public class Cliente {
+@Entity
+@Table(name = "unid_medida")
+public class UnidMedida {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    String dniruc;
+    @Column(name = "id_unidad")
+    private Integer idUnidad;
     @Basic(optional = false)
-    String nombrers, documento;
-
+    @Column(name = "nombre_medida")
+    private String nombreMedida;
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "dniruc", referencedColumnName = "dniruc")
-    @JsonIgnoreProperties({"dniruc"})
-    public List<Venta> ventas;
-
+    @JoinColumn(name = "id_unidad", referencedColumnName = "id_unidad")
+    @JsonIgnoreProperties({"idUnidad"})
+    public List<Producto> productos;
 }

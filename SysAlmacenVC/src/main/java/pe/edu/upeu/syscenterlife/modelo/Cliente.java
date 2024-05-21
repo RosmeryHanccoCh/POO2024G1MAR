@@ -32,6 +32,7 @@ public class Cliente {
     String dniruc;
     @Basic(optional = false)
     String nombrers, documento;
+    String direccion;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "dniruc", referencedColumnName = "dniruc")

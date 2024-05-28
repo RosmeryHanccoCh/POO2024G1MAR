@@ -27,6 +27,7 @@ import pe.edu.upeu.syscenterlife.componentes.FondoPanel;
 import pe.edu.upeu.syscenterlife.componentes.MyPasswordField;
 import pe.edu.upeu.syscenterlife.componentes.MyTextField;
 import pe.edu.upeu.syscenterlife.componentes.PanelBorder;
+import pe.edu.upeu.syscenterlife.modelo.SessionManager;
 import pe.edu.upeu.syscenterlife.modelo.Usuario;
 import pe.edu.upeu.syscenterlife.servicio.UsuarioService;
 import pe.edu.upeu.syscenterlife.util.MsgBox;
@@ -90,6 +91,8 @@ public class Login extends javax.swing.JFrame {
                         
                         
                 if (u!=null) {
+                    SessionManager.getInstance().setUserId(u.getIdUsuario());
+                    SessionManager.getInstance().setUsuarioNombre(u.getUser());
                     gUIMain.setContexto(ctx);
                     gUIMain.setVisible(true);
                     dispose();

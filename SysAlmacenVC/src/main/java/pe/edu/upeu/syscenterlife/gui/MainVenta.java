@@ -7,7 +7,10 @@ package pe.edu.upeu.syscenterlife.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -22,6 +25,8 @@ import pe.com.syscenterlife.jtablecomp.ButtonsPanel;
 import pe.com.syscenterlife.jtablecomp.ButtonsRenderer;
 import pe.edu.upeu.syscenterlife.modelo.SessionManager;
 import pe.edu.upeu.syscenterlife.modelo.VentCarrito;
+import pe.edu.upeu.syscenterlife.modelo.Venta;
+import pe.edu.upeu.syscenterlife.modelo.VentaDetalle;
 import pe.edu.upeu.syscenterlife.servicio.ClienteService;
 import pe.edu.upeu.syscenterlife.servicio.ProductoService;
 import pe.edu.upeu.syscenterlife.servicio.UsuarioService;
@@ -107,59 +112,57 @@ public class MainVenta extends javax.swing.JPanel {
             }
         });
     }
+
     public List<VentCarrito> listarCarrito(String dni) {
- List<VentCarrito> listarCleintes = daoC.listaCarritoCliente(dni);
- jTable1.setAutoCreateRowSorter(true);
- modelo = (DefaultTableModel) jTable1.getModel();
- ButtonsPanel.metaDataButtons = new String[][]{{"", "img/del-icon.png"}};
- jTable1.setRowHeight(40);
- TableColumn column = jTable1.getColumnModel().getColumn(8);
- 
- try {
- column.setCellRenderer(new ButtonsRenderer());
- be = new ButtonsEditor(jTable1);
- column.setCellEditor(be);
- modelo.setNumRows(0);
- Object[] ob = new Object[9];
- double impoTotal = 0, igv = 0;
- for (int i = 0; i < listarCleintes.size(); i++) {
- int x = -1;
- ob[++x] = listarCleintes.get(i).getIdCarrito();
- ob[++x] = listarCleintes.get(i).getDniruc();
- ob[++x] = listarCleintes.get(i).getIdProducto();
- ob[++x] = listarCleintes.get(i).getNombreProducto();
- ob[++x] = listarCleintes.get(i).getCantidad();
- ob[++x] = listarCleintes.get(i).getPunitario();
- ob[++x] = listarCleintes.get(i).getPtotal();
- ob[++x] = listarCleintes.get(i).getEstado();
- ob[++x] = "";
- impoTotal += Double.parseDouble(String.valueOf(listarCleintes.get(i).getPtotal()));
- modelo.addRow(ob);
- }
- JButton btnDel = be.getCellEditorValue().buttons.get(0);
- btnDel.addActionListener((ActionEvent e) -> { 
- int row= jTable1.convertRowIndexToModel(jTable1.getEditingRow());
- Object o = jTable1.getModel().getValueAt(row, 0);
- System.out.println("dd:"+o.toString()); 
- daoC.eliminarEntidad(Long.parseLong(String.valueOf(o)));
- listarCarrito(dni);
- System.out.println("AAAA:" + String.valueOf(o));
- JOptionPane.showMessageDialog(this, "Elimianr: " + o);
- });
- jTable1.setModel(modelo);
- txtImporte.setText(String.valueOf(impoTotal));
- double pv = impoTotal / 1.18;
- txtPVenta.setText(String.valueOf(Math.round(pv * 100.0) / 100.0));
- txtIgv.setText(String.valueOf(Math.round((pv * 0.18) * 100.0) / 100.0));
- 
- } catch (Exception e) {
- System.err.println("No hay datos en carrito:" + e.getMessage());
- }
- return listarCleintes;
-}
+        List<VentCarrito> listarCleintes = daoC.listaCarritoCliente(dni);
+        jTable1.setAutoCreateRowSorter(true);
+        modelo = (DefaultTableModel) jTable1.getModel();
+        ButtonsPanel.metaDataButtons = new String[][]{{"", "img/del-icon.png"}};
+        jTable1.setRowHeight(40);
+        TableColumn column = jTable1.getColumnModel().getColumn(8);
 
+        try {
+            column.setCellRenderer(new ButtonsRenderer());
+            be = new ButtonsEditor(jTable1);
+            column.setCellEditor(be);
+            modelo.setNumRows(0);
+            Object[] ob = new Object[9];
+            double impoTotal = 0, igv = 0;
+            for (int i = 0; i < listarCleintes.size(); i++) {
+                int x = -1;
+                ob[++x] = listarCleintes.get(i).getIdCarrito();
+                ob[++x] = listarCleintes.get(i).getDniruc();
+                ob[++x] = listarCleintes.get(i).getIdProducto();
+                ob[++x] = listarCleintes.get(i).getNombreProducto();
+                ob[++x] = listarCleintes.get(i).getCantidad();
+                ob[++x] = listarCleintes.get(i).getPunitario();
+                ob[++x] = listarCleintes.get(i).getPtotal();
+                ob[++x] = listarCleintes.get(i).getEstado();
+                ob[++x] = "";
+                impoTotal += Double.parseDouble(String.valueOf(listarCleintes.get(i).getPtotal()));
+                modelo.addRow(ob);
+            }
+            JButton btnDel = be.getCellEditorValue().buttons.get(0);
+            btnDel.addActionListener((ActionEvent e) -> {
+                int row = jTable1.convertRowIndexToModel(jTable1.getEditingRow());
+                Object o = jTable1.getModel().getValueAt(row, 0);
+                System.out.println("dd:" + o.toString());
+                daoC.eliminarEntidad(Long.parseLong(String.valueOf(o)));
+                listarCarrito(dni);
+                System.out.println("AAAA:" + String.valueOf(o));
+                JOptionPane.showMessageDialog(this, "Elimianr: " + o);
+            });
+            jTable1.setModel(modelo);
+            txtPVenta.setText(String.valueOf(impoTotal));
+            double pv = impoTotal / 1.18;
+            txtImporte.setText(String.valueOf(Math.round(pv * 100.0) / 100.0));
+            txtIgv.setText(String.valueOf(Math.round((pv * 0.18) * 100.0) / 100.0));
 
-    
+        } catch (Exception e) {
+            System.err.println("No hay datos en carrito:" + e.getMessage());
+        }
+        return listarCleintes;
+    }
 
     public void buscarProducto() {
         List<ModeloDataAutocomplet> itemsP = daoP.listAutoCompletProducto("");
@@ -289,6 +292,7 @@ public class MainVenta extends javax.swing.JPanel {
 
         jLabel9.setText("P.Total S/:");
 
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/data-add-icon.png"))); // NOI18N
         jButton2.setText("Add");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -327,19 +331,15 @@ public class MainVenta extends javax.swing.JPanel {
                         .addComponent(jLabel8)
                         .addGap(33, 33, 33)
                         .addComponent(jLabel9)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 130, Short.MAX_VALUE)
-                .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                        .addGap(1, 1, 1))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5)
@@ -354,8 +354,12 @@ public class MainVenta extends javax.swing.JPanel {
                             .addComponent(txtStock, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtCantidad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(txtPUnitario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtPTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(14, 14, 14))
+                            .addComponent(txtPTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 10, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
 
         jPanel3.setBackground(new java.awt.Color(153, 153, 255));
@@ -410,7 +414,13 @@ public class MainVenta extends javax.swing.JPanel {
 
         jLabel13.setText("P. Total S/:");
 
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/shop-cart-add-icon.png"))); // NOI18N
         jButton3.setText("R. Venta");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -437,7 +447,7 @@ public class MainVenta extends javax.swing.JPanel {
                     .addComponent(jLabel13)
                     .addComponent(txtPVenta, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
+                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16))
         );
         jPanel4Layout.setVerticalGroup(
@@ -502,18 +512,57 @@ public class MainVenta extends javax.swing.JPanel {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
         VentCarrito to = new VentCarrito();
-to.setDniruc(txtDniAutoComplet.getText());
-to.setIdProducto(Integer.parseInt(txtCodigo.getText()));
-to.setNombreProducto(txtProducto.getText());
-to.setCantidad(Double.parseDouble(txtCantidad.getText()));
-to.setPunitario(Double.parseDouble(txtPUnitario.getText()));
-to.setPtotal(Double.parseDouble(txtPTotal.getText()));
-to.setEstado(1);
-to.setIdUsuario(SessionManager.getInstance().getUserId());
-daoC.guardarEntidad(to);
-listarCarrito(txtDniAutoComplet.getText());
+        to.setDniruc(txtDniAutoComplet.getText());
+        to.setIdProducto(Integer.parseInt(txtCodigo.getText()));
+        to.setNombreProducto(txtProducto.getText());
+        to.setCantidad(Double.parseDouble(txtCantidad.getText()));
+        to.setPunitario(Double.parseDouble(txtPUnitario.getText()));
+        to.setPtotal(Double.parseDouble(txtPTotal.getText()));
+        to.setEstado(1);
+        to.setIdUsuario(SessionManager.getInstance().getUserId());
+        daoC.guardarEntidad(to);
+        listarCarrito(txtDniAutoComplet.getText());
 
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        registrarVenta();
+    }//GEN-LAST:event_jButton3ActionPerformed
+    public void registrarVenta() {
+        Venta to = new Venta();
+        to.setDniruc(daoCli.buscarEntidad(txtDniAutoComplet.getText()));
+        to.setPreciobase(Double.parseDouble(txtImporte.getText()));
+        to.setIgv(Double.parseDouble(txtIgv.getText()));
+        to.setPreciototal(Double.parseDouble(txtPVenta.getText()));
+        to.setIdUsuario(userSer.buscarEntidad(SessionManager.getInstance().getUserId()));
+        to.setSerie("V");
+        to.setTipoDoc("Factura");
+        Locale locale = new Locale("es", "es-PE");
+        LocalDateTime localDate = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss", locale);
+        String fechaFormateada = localDate.format(formatter);
+        System.out.println("Fecha:" + fechaFormateada);
+        to.setFechaGener(localDate.parse(fechaFormateada, formatter));
+        to.setNumDoc("00" + to.getIdVenta());
+        Venta idX = daoV.guardarEntidad(to);
+        List<VentCarrito> dd = listarCarrito(txtDniAutoComplet.getText());
+        if (idX.getIdVenta() != 0) {
+            for (VentCarrito car : dd) {
+                VentaDetalle vd = new VentaDetalle();
+                vd.setIdVenta(idX);
+                vd.setIdProducto(daoP.buscarEntidad(Long.parseLong(String.valueOf(car.getIdProducto()))));
+                vd.setCantidad(car.getCantidad());
+                vd.setDescuento(0);
+                vd.setPu(car.getPunitario());
+                vd.setSubtotal(car.getPtotal());
+                daoVD.guardarEntidad(vd);
+            }
+        }
+        daoC.deleteCarAll(txtDniAutoComplet.getText());
+        listarCarrito(txtDniAutoComplet.getText());
+        daoV.runReport1(idX.getIdVenta());
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

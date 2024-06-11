@@ -20,6 +20,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 
@@ -31,7 +32,7 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id_venta")
-    private Integer idVenta;
+    private Long idVenta;
     @Basic(optional = false)
     @Column(name = "preciobase")
     private double preciobase;
@@ -46,9 +47,9 @@ public class Venta {
     private String numDoc;
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Basic(optional = false)
-    @Column(name = "fecha_gener")
-    @Temporal(TemporalType.DATE)
-    private LocalDate fechaGener;
+    @Column(name= "fecha_gener")
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime fechaGener;
     @Basic(optional = false)
     @Column(name = "serie")
     private String serie;
